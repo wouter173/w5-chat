@@ -5,6 +5,7 @@ import './app.css'
 import { rootAuthLoader } from '@clerk/react-router/ssr.server'
 import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/react-router'
 import { dark } from '@clerk/themes'
+import { TRPCClientProvider } from './components/trpc'
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args)
@@ -51,7 +52,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
       signUpFallbackRedirectUrl="/"
       signInFallbackRedirectUrl="/"
     >
-      <Outlet />
+      <TRPCClientProvider>
+        <Outlet />
+      </TRPCClientProvider>
     </ClerkProvider>
   )
 }

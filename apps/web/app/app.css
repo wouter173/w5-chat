@@ -20,7 +20,7 @@
 }
 
 @theme {
-  --font-sans: 'Geist';
+  --font-sans: 'Geist', 'Geist fallback';
   --color-primary: var(--color-primary);
   --color-background: var(--color-background);
   --color-panel: var(--color-panel);

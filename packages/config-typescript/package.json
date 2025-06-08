@@ -1,5 +1,5 @@
 {
-  "name": "@w5-chat/typescript-config",
+  "name": "@w5-chat/config-typescript",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

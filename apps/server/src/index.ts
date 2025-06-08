@@ -1,54 +1,36 @@
-import { openai } from '@ai-sdk/openai'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
-import { serve } from '@hono/node-server'
-import { createNodeWebSocket } from '@hono/node-ws'
-import { bus } from '@w5-chat/bus'
-import { generateText, streamText } from 'ai'
-import { Hono } from 'hono'
-import { requireAuth } from './auth.js'
+import * as trpcExpress from '@trpc/server/adapters/express'
+import { appRouter } from '@w5-chat/api'
+import express from 'express'
+import { clerkMiddleware, getAuth } from '@clerk/express'
+import cors from 'cors'
 
-const app = new Hono()
+const PORT = 3000
+const app = express()
 
-const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
-
-app.get('*', clerkMiddleware())
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-app.get(
-  '/ws',
-  requireAuth(),
-  upgradeWebSocket((c) => ({
-    onMessage(event, ws) {
-      const msg = bus.decode(event.data as string)
-
-      if (msg.type === 'hello') {
-        console.log('Received hello message')
-        ws.send(bus.encode({ type: 'hello' }))
-      }
-
-      if (msg.type === 'prompt') {
-        ;(async () => {
-          console.log('Received prompt:', msg.payload.content)
-          const { textStream } = streamText({
-            model: openai(msg.payload.model),
-            prompt: msg.payload.content,
-          })
-
-          for await (const textPart of textStream) {
-            ws.send(bus.encode({ type: 'part', payload: { content: textPart } }))
-          }
-        })()
-      }
-    },
-    onClose: () => {
-      console.log('Connection closed')
-    },
-  })),
+app.use(
+  cors({
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    credentials: true,
+  }),
 )
+app.use(clerkMiddleware())
 
-const server = serve({ fetch: app.fetch, port: 3000 }, (info) => {
-  console.log(`Server is running on http://localhost:${info.port}`)
+const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {
+  console.log('Request Headers:', req.auth())
+  const { userId } = getAuth(req)
+  console.log('User ID:', userId)
+
+  if (!userId) return { auth: null }
+  return { auth: { userId } }
+}
+
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  }),
+)
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}/trpc`)
 })
-injectWebSocket(server)
