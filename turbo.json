@@ -1,7 +1,7 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
-  "globalEnv": ["OPENAI_API_KEY"],
+  "globalEnv": ["OPENAI_API_KEY", "VITE_CLERK_PUBLISHABLE_KEY", "CLERK_SECRET_KEY"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

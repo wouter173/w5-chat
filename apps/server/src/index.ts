@@ -1,20 +1,24 @@
 import { openai } from '@ai-sdk/openai'
+import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { serve } from '@hono/node-server'
 import { createNodeWebSocket } from '@hono/node-ws'
 import { bus } from '@w5-chat/bus'
 import { generateText, streamText } from 'ai'
 import { Hono } from 'hono'
+import { requireAuth } from './auth.js'
 
 const app = new Hono()
 
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
 
+app.get('*', clerkMiddleware())
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 })
 
 app.get(
   '/ws',
+  requireAuth(),
   upgradeWebSocket((c) => ({
     onMessage(event, ws) {
       const msg = bus.decode(event.data as string)
@@ -33,12 +37,7 @@ app.get(
           })
 
           for await (const textPart of textStream) {
-            ws.send(
-              bus.encode({
-                type: 'part',
-                payload: { content: textPart },
-              }),
-            )
+            ws.send(bus.encode({ type: 'part', payload: { content: textPart } }))
           }
         })()
       }
