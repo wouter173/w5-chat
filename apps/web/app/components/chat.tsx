@@ -1,6 +1,7 @@
-import { bus } from '@w5-chat/bus'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import { Panel } from './panel'
 import { useWs } from './use-ws'
+import { Header } from './header'
 
 export function Chat() {
   const [chat, setChat] = useState('')
@@ -16,10 +17,11 @@ export function Chat() {
   })
 
   return (
-    <div className="text-primary">
-      <h1 className="text-2xl font-bold mb-4">Chat</h1>
+    <Panel className="text-primary min-h-[calc(100dvh-16px)] mt-4 rounded-b-none rounded-tr-none border border-r-0 border-b-0 border-zinc-800">
+      <Header />
+
       <div className="mb-4">
-        <pre className="bg-gray-800 p-4 rounded whitespace-break-spaces">{chat}</pre>
+        <div className=" p-4 rounded whitespace-break-spaces">{chat}</div>
       </div>
 
       <form
@@ -37,6 +39,6 @@ export function Chat() {
         <input onChange={(e) => setPrompt(e.target.value)} value={prompt} className="border-red-500 border" type="text" />
         <button>send</button>
       </form>
-    </div>
+    </Panel>
   )
 }
