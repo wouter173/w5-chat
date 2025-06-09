@@ -11,6 +11,8 @@ export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args)
 }
 
+export const meta: Route.MetaFunction = () => [{ title: 'W5 Chat' }]
+
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {

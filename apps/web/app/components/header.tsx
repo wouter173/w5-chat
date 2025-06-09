@@ -2,7 +2,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/react-rout
 
 export function Header() {
   return (
-    <header className="flex p-4">
+    <header className="flex p-4 sticky top-0">
       <div className="ml-auto">
         <SignedOut>
           <SignInButton />

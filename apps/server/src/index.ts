@@ -7,30 +7,31 @@ import cors from 'cors'
 const PORT = 3000
 const app = express()
 
-app.use(
-  cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true,
-  }),
-)
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:5173'], credentials: true }))
 app.use(clerkMiddleware())
 
 const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {
-  console.log('Request Headers:', req.auth())
   const { userId } = getAuth(req)
-  console.log('User ID:', userId)
 
   if (!userId) return { auth: null }
   return { auth: { userId } }
 }
 
 app.use(
-  '/trpc',
+  '/api/trpc',
   trpcExpress.createExpressMiddleware({
     router: appRouter,
     createContext,
+    onError(opts: any) {
+      const { error, type, path, input, ctx, req } = opts
+      console.error('Error:', error)
+      if (error.code === 'INTERNAL_SERVER_ERROR') {
+        // send to bug reporting
+      }
+    },
   }),
 )
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}/trpc`)
 })

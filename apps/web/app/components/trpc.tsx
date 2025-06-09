@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { createTRPCClient, httpBatchLink } from '@trpc/client'
+import { createTRPCClient, httpBatchLink, httpBatchStreamLink, httpSubscriptionLink, splitLink } from '@trpc/client'
 import { useState, type PropsWithChildren } from 'react'
 import { TRPCProvider } from '~/lib/trpc'
 import type { AppRouter } from '@w5-chat/api'
@@ -24,10 +24,11 @@ export function TRPCClientProvider({ children }: PropsWithChildren) {
   const [trpcClient] = useState(() =>
     createTRPCClient<AppRouter>({
       links: [
-        httpBatchLink({
-          url: 'http://localhost:3000/trpc',
-          transformer: superjson,
-          fetch: (input, init) => fetch(input, { ...init, credentials: 'include' }),
+        splitLink({
+          // uses the httpSubscriptionLink for subscriptions
+          condition: (op) => op.type === 'subscription',
+          true: httpSubscriptionLink({ url: `/api/trpc`, transformer: superjson }),
+          false: httpBatchLink({ url: `/api/trpc`, transformer: superjson }),
         }),
       ],
     }),
