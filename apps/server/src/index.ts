@@ -7,7 +7,7 @@ import cors from 'cors'
 const PORT = 3000
 const app = express()
 
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:5173'], credentials: true }))
+app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:3001'], credentials: true }))
 app.use(clerkMiddleware())
 
 const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {

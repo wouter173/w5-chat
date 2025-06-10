@@ -2,10 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 
 import { useTRPC } from '~/lib/trpc'
 import { SuperLink } from './super-link'
+import { useParams } from 'react-router'
+import { cn } from '~/lib/cn'
 
 export function Nav() {
   const trpc = useTRPC()
   const listQuery = useQuery(trpc.chat.list.queryOptions())
+
+  const params = useParams()
 
   return (
     <nav className="w-72 p-4 shrink-0 h-screen sticky top-0">
@@ -17,8 +21,14 @@ export function Nav() {
       </SuperLink>
       <ul>
         {listQuery.data?.map((chat) => (
-          <li key={chat.id} className="py-2">
-            <SuperLink to={`/${chat.id}`} className="text-primary hover:text-primary/80 transition-colors text-sm">
+          <li key={chat.id}>
+            <SuperLink
+              to={`/${chat.id}`}
+              className={cn(
+                'flex py-2 w-full text-primary hover:text-primary/80 transition-colors text-sm',
+                params.id === chat.id ? 'bg-panel' : '',
+              )}
+            >
               {chat.name}
             </SuperLink>
           </li>

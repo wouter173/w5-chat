@@ -5,7 +5,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "dotenv -e ../../.env -- react-router dev",
-    "start": "dotenv -e ../../.env -- react-router-serve ./build/server/index.js",
+    "start": "PORT=3001 dotenv -e ../../.env -- react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "dotenv-cli": "^8.0.0",
     "isbot": "^5.1.27",
+    "lucide-react": "^0.514.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.5.3",

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "dotenv -e ../../.env -- tsx --watch --watch-preserve-output src/index.ts",
+    "start": "dotenv -e ../../.env -- tsx  src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

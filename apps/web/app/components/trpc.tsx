@@ -27,8 +27,16 @@ export function TRPCClientProvider({ children }: PropsWithChildren) {
         splitLink({
           // uses the httpSubscriptionLink for subscriptions
           condition: (op) => op.type === 'subscription',
-          true: httpSubscriptionLink({ url: `/api/trpc`, transformer: superjson }),
-          false: httpBatchLink({ url: `/api/trpc`, transformer: superjson }),
+          true: httpSubscriptionLink({
+            url: `http://localhost:3000/api/trpc`,
+            transformer: superjson,
+            eventSourceOptions: { withCredentials: true },
+          }),
+          false: httpBatchLink({
+            url: `http://localhost:3000/api/trpc`,
+            transformer: superjson,
+            fetch: (input, init) => fetch(input, { ...init, credentials: 'include' }),
+          }),
         }),
       ],
     }),

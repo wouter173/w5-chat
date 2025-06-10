@@ -1,19 +1,15 @@
 import { Outlet } from 'react-router'
-import { Header } from '~/components/header'
 import { Nav } from '~/components/nav'
 
 export default function Layout() {
   return (
     <div className="flex min-h-screen w-full">
       <Nav />
-      <main className="w-full min-h-screen bg-panel break-all text-primary rounded-b-none rounded-tr-none border border-r-0 border-b-0 border-zinc-800 mt-4 rounded-2xl">
-        <Header />
+      <div className="relative w-full overflow-clip">
+        <div className="left-0 right-0 top-0 h-4 absolute w-full bg-background z-20"></div>
+        <div className="inset-0 bg-panel top-4 absolute w-full rounded-b-none rounded-tr-none border border-r-0 border-b-0 border-zinc-800 rounded-2xl"></div>
         <Outlet />
-      </main>
+      </div>
     </div>
   )
-}
-
-{
-  /*  */
 }

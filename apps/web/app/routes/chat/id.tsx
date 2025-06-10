@@ -1,9 +1,12 @@
 import type { Route } from './+types/id'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTRPC } from '~/lib/trpc'
 import { useMutation } from '@tanstack/react-query'
 import { useSubscription } from '@trpc/tanstack-react-query'
 import type { Message } from '@w5-chat/api'
+import { Prompt } from '~/components/prompt'
+import { Header } from '~/components/header'
+import { useLocation } from 'react-router'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
@@ -14,18 +17,29 @@ const UserMessage = ({ message }: { message: Message }) => (
 const AssistantMessage = ({ message }: { message: Message }) => (
   <li>
     <p>{message.content}</p>
-    <p className="text-gray-800">{message.model && <span className="text-xs text-gray-400">{message.model}</span>}</p>
-    <p className="text-sm text-gray-500">{message.createdAt.toLocaleString()}</p>
+    <p className="text-gray-800">{message.model && <span className="text-xs text-zinc-400">{message.model}</span>}</p>
+    <p className="text-sm text-zinc-500">{message.createdAt.toLocaleString()}</p>
   </li>
 )
 
 export default function ChatId({ params: { id } }: Route.ComponentProps) {
-  const [prompt, setPrompt] = useState('')
   const trpc = useTRPC()
   const [history, setHistory] = useState<Message[]>([])
   const [response, setResponse] = useState<string | null>(null)
 
+  const location = useLocation()
+
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
+  const usedPrompt = useRef<boolean>(false)
+  useEffect(() => {
+    if (usedPrompt.current) return
+    const prompt = location.state?.prompt as string | undefined
+    if (prompt) {
+      usedPrompt.current = true
+      promptMutation.mutate({ chatId: id, prompt, model: 'o4-mini' })
+    }
+  }, [])
+
   useSubscription(
     trpc.chat.messages.subscriptionOptions(
       { chatId: id },
@@ -34,7 +48,7 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
           console.log('Received payload:', payload.type, payload)
           if (payload.type === 'history') {
             setHistory(payload.messages)
-          } else if (payload.type === 'done') {
+          } else if (payload.type === 'message') {
             setResponse(null)
             setHistory((prev) => [...prev, payload.message])
           } else if (payload.type === 'token') {
@@ -48,7 +62,8 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
 
   return (
     <>
-      <div className="mb-4">
+      <main className="w-full h-screen pt-12 relative overflow-scroll break-all text-primary pb-64">
+        <Header />
         <div className="p-4 rounded whitespace-break-spaces max-w-3xl mx-auto">
           <ul className="flex flex-col gap-4">
             {history.map((msg) => {
@@ -57,30 +72,21 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
               }
               return <AssistantMessage key={msg.id} message={msg} />
             })}
-            {response ? (
-              <AssistantMessage
-                message={{
-                  id: '',
-                  role: '',
-                  content: response,
-                  createdAt: new Date(),
-                  model: null,
-                }}
-              />
-            ) : null}
+            {response ? <AssistantMessage message={{ id: '', role: '', content: response, createdAt: new Date(), model: null }} /> : null}
           </ul>
         </div>
-      </div>
+      </main>
 
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          await promptMutation.mutateAsync({ chatId: id, messages: [], prompt, model: 'o4-mini' })
-        }}
-      >
-        <input onChange={(e) => setPrompt(e.target.value)} value={prompt} className="border-red-500 border" type="text" />
-        <button>send</button>
-      </form>
+      <div className="absolute bottom-0 w-full">
+        <div className="w-11/12 mx-auto bg-panel">
+          <Prompt
+            onSubmit={async (prompt) => {
+              await promptMutation.mutateAsync({ chatId: id, prompt, model: 'o4-mini' })
+            }}
+          />
+          <div className="h-10"></div>
+        </div>
+      </div>
     </>
   )
 }

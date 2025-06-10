@@ -19,17 +19,17 @@ export const chatRouter = createTRPCRouter({
   }),
 
   create: authProcedure.input(z.object({ prompt: z.string() })).mutation(async ({ ctx: { auth }, input }) => {
-    const {
-      object: { name },
-    } = await generateObject({
-      model: openai('o3-mini'),
-      prompt: `generate a chat name based on the following prompt: ${input.prompt}`,
-      schema: z.object({
-        name: z.string().min(1, 'Chat name must not be empty').max(50, 'Chat name must not exceed 50 characters'),
-      }),
-    })
+    // const {
+    //   object: { name },
+    // } = await generateObject({
+    //   model: openai('gpt-4-turbo'),
+    //   prompt: `generate a chat name based on the following prompt: ${input.prompt}, if the prompt is empty, return "New Chat"`,
+    //   schema: z.object({
+    //     name: z.string().min(1, 'Chat name must not be empty').max(50, 'Chat name must not exceed 50 characters'),
+    //   }),
+    // })
 
-    const chat = await db.insert(chatTable).values({ name, userId: auth.userId, id: nanoid() }).returning()
+    const chat = await db.insert(chatTable).values({ name: 'new Chat', userId: auth.userId, id: nanoid() }).returning()
 
     return chat[0]
   }),
@@ -38,7 +38,7 @@ export const chatRouter = createTRPCRouter({
     .input(
       z.object({
         chatId: z.string(),
-        messages: z.array(z.object({ content: z.string(), role: z.enum(['user', 'system']) })),
+
         prompt: z.string(),
         model: z.enum(models),
       }),
@@ -46,18 +46,31 @@ export const chatRouter = createTRPCRouter({
     .mutation(async function ({ ctx: { auth }, input }) {
       const chat = await db.query.chatTable.findFirst({
         where: (chat, { eq }) => eq(chat.id, input.chatId),
+        with: { messages: true },
       })
 
       if (!chat) throw new Error('Chat not found')
       if (chat.userId !== auth.userId) throw new Error('Unauthorized')
 
-      await db.insert(chatMessageTable).values({ id: nanoid(), chatId: chat.id, content: input.prompt, role: 'user' })
+      const userMessageResponseRow = await db
+        .insert(chatMessageTable)
+        .values({ id: nanoid(), chatId: chat.id, content: input.prompt, role: 'user' })
+        .returning()
+        .then((rows) => rows[0])
 
       const chatStream = getChatStream(chat.id)
 
+      chatStream.send({ type: 'message', message: userMessageResponseRow })
+
       const { textStream } = await streamText({
         model: getLanguageModel(input.model),
-        messages: [...input.messages, { role: 'user', content: input.prompt }],
+        messages: [
+          ...chat.messages.map((m) => ({
+            role: m.role as 'user' | 'assistant',
+            content: m.content,
+          })),
+          { role: 'user', content: input.prompt },
+        ],
       })
 
       let response = ''
@@ -73,7 +86,7 @@ export const chatRouter = createTRPCRouter({
         .returning()
         .then((rows) => rows[0])
 
-      chatStream.send({ type: 'done', message: responseRow })
+      chatStream.send({ type: 'message', message: responseRow })
       safeRemoveChatStream(chat.id)
       return response
     }),

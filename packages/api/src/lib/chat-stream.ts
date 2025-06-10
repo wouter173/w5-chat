@@ -3,7 +3,7 @@ import { Message } from './types'
 
 export type ChatStreamPayload =
   | { type: 'token'; content: string }
-  | { type: 'done'; message: Message }
+  | { type: 'message'; message: Message }
   | { type: 'history'; messages: Message[] }
 
 export class ChatStream extends EventEmitter {
