@@ -26,6 +26,20 @@ export const chatRouter = createTRPCRouter({
     return chat[0]
   }),
 
+  delete: authProcedure.input(z.object({ chatId: z.string() })).mutation(async ({ ctx: { auth }, input }) => {
+    const chat = await db.query.chatTable.findFirst({
+      where: (chat, { eq }) => eq(chat.id, input.chatId),
+      with: { messages: true },
+    })
+    if (!chat) throw new Error('Chat not found')
+    if (chat.userId !== auth.userId) throw new Error('Unauthorized')
+
+    await db.delete(chatMessageTable).where(eq(chatMessageTable.chatId, input.chatId))
+    await db.delete(chatTable).where(eq(chatTable.id, input.chatId))
+
+    return { success: true }
+  }),
+
   generateName: authProcedure.input(z.object({ chatId: z.string(), prompt: z.string() })).mutation(async ({ ctx: { auth }, input }) => {
     console.log('Generating chat name for chatId:', input.chatId, 'with prompt:', input.prompt)
     const chat = await db.query.chatTable.findFirst({
