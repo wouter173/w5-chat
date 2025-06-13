@@ -20,11 +20,11 @@ export default function Index() {
         <div className="w-full flex flex-col items-center max-w-3xl p-4 gap-8">
           <h1 className="text-3xl text-center">Welcome to W5 Chat</h1>
           <Prompt
-            onSubmit={async (prompt) => {
+            onSubmit={async (prompt, model) => {
               const chat = await createMutation.mutateAsync()
               await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
 
-              navigate(`/${chat.id}`, { state: { prompt }, viewTransition: true })
+              navigate(`/${chat.id}`, { state: { prompt, model }, viewTransition: true })
             }}
           />
         </div>

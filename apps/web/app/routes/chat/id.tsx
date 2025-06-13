@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTRPC } from '~/lib/trpc'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSubscription } from '@trpc/tanstack-react-query'
-import type { Message } from '@w5-chat/api'
+import type { Message, Model } from '@w5-chat/api'
 import { Prompt } from '~/components/prompt'
 import { Header } from '~/components/header'
 import { useLocation, useNavigate } from 'react-router'
@@ -41,12 +41,13 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
   useEffect(() => {
     if (usedPrompt.current) return
     const prompt = location.state?.prompt as string | undefined
+    const model = location.state?.model as Model | undefined
     if (prompt) {
       navigate('/' + id, { replace: true })
       usedPrompt.current = true
       generateNameMutation.mutate({ chatId: id, prompt })
       promptMutation.mutate(
-        { chatId: id, prompt, model: 'o4-mini' },
+        { chatId: id, prompt, model: model ?? 'o4-mini' },
         {
           onSuccess: async () => {
             await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
@@ -120,8 +121,8 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
       <div className="absolute bottom-0 w-full">
         <div className="w-11/12 mx-auto bg-panel">
           <Prompt
-            onSubmit={async (prompt) => {
-              await promptMutation.mutateAsync({ chatId: id, prompt, model: 'o4-mini' })
+            onSubmit={async (prompt, model) => {
+              await promptMutation.mutateAsync({ chatId: id, prompt, model })
             }}
           />
           <div className="h-10"></div>

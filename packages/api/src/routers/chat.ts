@@ -10,6 +10,8 @@ import { ChatStream, ChatStreamPayload, getChatStream, safeRemoveChatStream } fr
 import { eq } from 'drizzle-orm'
 
 export const chatRouter = createTRPCRouter({
+  models: authProcedure.query(() => models),
+
   list: authProcedure.query(async ({ ctx: { auth } }) => {
     const chats = await db.query.chatTable.findMany({
       where: (chat, { eq }) => eq(chat.userId, auth.userId),
@@ -73,7 +75,7 @@ export const chatRouter = createTRPCRouter({
         chatId: z.string(),
 
         prompt: z.string(),
-        model: z.enum(models),
+        model: z.enum([...models.openai, ...models.anthropic]),
       }),
     )
     .mutation(async function ({ ctx: { auth }, input }) {
@@ -95,7 +97,9 @@ export const chatRouter = createTRPCRouter({
 
       chatStream.send({ type: 'message', message: userMessageResponseRow })
 
-      const { textStream } = await streamText({
+      console.log('Starting prompt generation for chatId:', input.chatId, 'with prompt:', input.prompt, 'and model:', input.model)
+
+      const stream = await streamText({
         model: getLanguageModel(input.model),
         messages: [
           ...chat.messages.map((m) => ({
@@ -104,24 +108,25 @@ export const chatRouter = createTRPCRouter({
           })),
           { role: 'user', content: input.prompt },
         ],
+        maxTokens: 16384,
+        topP: 1,
       })
 
-      let response = ''
-
-      for await (const token of textStream) {
+      for await (const token of stream.textStream) {
         chatStream.send({ type: 'token', content: token })
-        response += token
       }
+
+      const text = await stream.text
 
       const responseRow = await db
         .insert(chatMessageTable)
-        .values({ id: nanoid(), chatId: chat.id, content: response, model: input.model, role: 'system' })
+        .values({ id: nanoid(), chatId: chat.id, content: text, model: input.model, role: 'system' })
         .returning()
         .then((rows) => rows[0])
 
       chatStream.send({ type: 'message', message: responseRow })
       safeRemoveChatStream(chat.id)
-      return response
+      return text
     }),
 
   messages: authProcedure.input(z.object({ chatId: z.string() })).subscription(async function* ({ ctx: { auth }, input, signal }) {

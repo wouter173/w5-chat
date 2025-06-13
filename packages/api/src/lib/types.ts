@@ -1,3 +1,5 @@
+import { models } from './models'
+
 export type Message = {
   id: string
   role: string
@@ -5,3 +7,5 @@ export type Message = {
   createdAt: Date
   model: string | null
 }
+
+export type Model = (typeof models)[keyof typeof models][number]
