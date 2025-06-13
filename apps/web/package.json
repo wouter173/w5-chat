@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/react-router": "^1.5.0",
     "@clerk/themes": "^2.2.49",
+    "@fontsource-variable/geist": "^5.2.6",
     "@react-router/node": "^7.5.3",
     "@react-router/serve": "^7.5.3",
     "@tanstack/react-query": "^5.80.6",
@@ -21,6 +22,7 @@
     "dotenv-cli": "^8.0.0",
     "isbot": "^5.1.27",
     "lucide-react": "^0.514.0",
+    "motion": "^12.16.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router": "^7.5.3",

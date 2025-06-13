@@ -1,12 +1,12 @@
 import type { Route } from './+types/id'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTRPC } from '~/lib/trpc'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSubscription } from '@trpc/tanstack-react-query'
 import type { Message } from '@w5-chat/api'
 import { Prompt } from '~/components/prompt'
 import { Header } from '~/components/header'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
@@ -24,19 +24,35 @@ const AssistantMessage = ({ message }: { message: Message }) => (
 
 export default function ChatId({ params: { id } }: Route.ComponentProps) {
   const trpc = useTRPC()
+  const queryClient = useQueryClient()
   const [history, setHistory] = useState<Message[]>([])
   const [response, setResponse] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   const location = useLocation()
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isAtBottom, setIsAtBottom] = useState(true)
+
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
+  const generateNameMutation = useMutation(trpc.chat.generateName.mutationOptions())
+
   const usedPrompt = useRef<boolean>(false)
   useEffect(() => {
     if (usedPrompt.current) return
     const prompt = location.state?.prompt as string | undefined
     if (prompt) {
+      navigate('/' + id, { replace: true })
       usedPrompt.current = true
-      promptMutation.mutate({ chatId: id, prompt, model: 'o4-mini' })
+      generateNameMutation.mutate({ chatId: id, prompt })
+      promptMutation.mutate(
+        { chatId: id, prompt, model: 'o4-mini' },
+        {
+          onSuccess: async () => {
+            await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
+          },
+        },
+      )
     }
   }, [])
 
@@ -54,15 +70,39 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
           } else if (payload.type === 'token') {
             console.log('Received token:', payload.content)
             setResponse((prev) => (prev ?? '') + payload.content)
+            scrollToBottom()
           }
         },
       },
     ),
   )
 
+  const handleScroll = () => {
+    if (!containerRef.current) return
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current
+    setIsAtBottom(scrollTop + clientHeight >= scrollHeight - 40) // 10px leeway
+  }
+
+  const scrollToBottom = () => {
+    if (isAtBottom && containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }
+
+  useLayoutEffect(() => {
+    const el = containerRef.current
+    if (el) {
+      el.scrollTop = el.scrollHeight
+    }
+  }, [history])
+
   return (
     <>
-      <main className="w-full h-screen pt-12 relative overflow-scroll break-all text-primary pb-64">
+      <main
+        ref={containerRef}
+        onScroll={handleScroll}
+        className="w-full h-screen pt-12 relative overflow-scroll break-all text-primary pb-64 px-4"
+      >
         <Header />
         <div className="p-4 rounded whitespace-break-spaces max-w-3xl mx-auto">
           <ul className="flex flex-col gap-4">

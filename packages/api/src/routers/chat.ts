@@ -7,31 +7,50 @@ import { getLanguageModel, models } from '../lib/models'
 import { openai } from '@ai-sdk/openai'
 import { nanoid } from '../lib/id'
 import { ChatStream, ChatStreamPayload, getChatStream, safeRemoveChatStream } from '../lib/chat-stream'
+import { eq } from 'drizzle-orm'
 
 export const chatRouter = createTRPCRouter({
   list: authProcedure.query(async ({ ctx: { auth } }) => {
     const chats = await db.query.chatTable.findMany({
       where: (chat, { eq }) => eq(chat.userId, auth.userId),
       with: { messages: { columns: { content: true, role: true, createdAt: true, model: true } } },
+      orderBy: (chat, { desc }) => [desc(chat.createdAt)],
     })
 
     return chats
   }),
 
-  create: authProcedure.input(z.object({ prompt: z.string() })).mutation(async ({ ctx: { auth }, input }) => {
-    // const {
-    //   object: { name },
-    // } = await generateObject({
-    //   model: openai('gpt-4-turbo'),
-    //   prompt: `generate a chat name based on the following prompt: ${input.prompt}, if the prompt is empty, return "New Chat"`,
-    //   schema: z.object({
-    //     name: z.string().min(1, 'Chat name must not be empty').max(50, 'Chat name must not exceed 50 characters'),
-    //   }),
-    // })
-
+  create: authProcedure.mutation(async ({ ctx: { auth } }) => {
     const chat = await db.insert(chatTable).values({ name: 'new Chat', userId: auth.userId, id: nanoid() }).returning()
 
     return chat[0]
+  }),
+
+  generateName: authProcedure.input(z.object({ chatId: z.string(), prompt: z.string() })).mutation(async ({ ctx: { auth }, input }) => {
+    console.log('Generating chat name for chatId:', input.chatId, 'with prompt:', input.prompt)
+    const chat = await db.query.chatTable.findFirst({
+      where: (chat, { eq }) => eq(chat.id, input.chatId),
+      with: { messages: true },
+    })
+
+    if (!chat) throw new Error('Chat not found')
+    if (chat.userId !== auth.userId) throw new Error('Unauthorized')
+
+    const {
+      object: { name },
+    } = await generateObject({
+      model: openai('gpt-4-turbo'),
+      prompt: `generate a chat name based on the following prompt: ${input.prompt}, if the prompt is empty, return "New Chat"`,
+      schema: z.object({
+        name: z.string().min(1, 'Chat name must not be empty').max(50, 'Chat name must not exceed 50 characters'),
+      }),
+    })
+
+    await db.update(chatTable).set({ name }).where(eq(chatTable.id, input.chatId))
+
+    console.log('Generated chat name:', name)
+
+    return { success: true }
   }),
 
   prompt: authProcedure

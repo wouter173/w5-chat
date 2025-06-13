@@ -1,5 +1,8 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
+import '@fontsource-variable/geist'
+import openSansWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+
 import type { Route } from './+types/root'
 import './app.css'
 import { rootAuthLoader } from '@clerk/react-router/ssr.server'
@@ -14,15 +17,12 @@ export async function loader(args: Route.LoaderArgs) {
 export const meta: Route.MetaFunction = () => [{ title: 'W5 Chat' }]
 
 export const links: Route.LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
+    rel: 'preload',
+    as: 'font',
+    type: 'font/woff2',
+    href: openSansWoff2,
     crossOrigin: 'anonymous',
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
 ]
 

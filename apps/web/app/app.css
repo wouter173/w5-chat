@@ -1,13 +1,8 @@
 @import 'tailwindcss';
 
-@font-face {
-  font-family: 'Geist';
-  src: url('/fonts/Geist[wght].woff2') format('woff2');
-  font-weight: 100 900;
-  font-display: swap;
-}
-
 :root {
+  --sans-font-family: 'Geist';
+
   --color-primary: var(--color-zinc-950);
   --color-background: var(--color-zinc-50);
   --color-panel: var(--color-zinc-100);
@@ -19,8 +14,12 @@
   }
 }
 
+@utility no-scrollbar {
+  @apply [scrollbar-width:none] [&::-webkit-scrollbar]:hidden;
+}
+
 @theme {
-  --font-sans: 'Geist', 'Geist fallback';
+  --font-sans: var(--sans-font-family);
   --color-primary: var(--color-primary);
   --color-background: var(--color-background);
   --color-panel: var(--color-panel);
