@@ -2,6 +2,14 @@
 
 This Turborepo starter is maintained by the Turborepo core team.
 
+## TODO
+
+- [ ] live sidebar with subscription
+- [ ] chat header
+- [ ] markdown formatting and syntax highlighting
+- [ ] clerk release mode
+- [ ] user permission limiting
+
 ## Using this example
 
 Run the following command:
