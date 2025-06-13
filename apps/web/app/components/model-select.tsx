@@ -16,7 +16,7 @@ export function ModelSelect({ value, onChange, children }: PropsWithChildren<{ v
 
       <Select.Portal>
         <Select.Content
-          className="overflow-hidden rounded-lg bg-zinc-800 px-1 pb-1 pt-2 border border-zinc-700 relative z-20 min-w-32 shadow-2xl"
+          className="overflow-hidden rounded-lg bg-zinc-800 px-1 pb-1 pt-2 border border-zinc-700 relative z-20 min-w-48 shadow-2xl"
           position="popper"
           sideOffset={4}
         >
