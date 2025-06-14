@@ -2,7 +2,7 @@ import z from 'zod'
 import { chatMessageTable, chatTable } from '../db/schema'
 import { authProcedure, createTRPCRouter } from '../init'
 import { db } from '../lib/db'
-import { generateObject, streamText } from 'ai'
+import { generateObject, smoothStream, streamText } from 'ai'
 import { getLanguageModel, models } from '../lib/models'
 import { openai } from '@ai-sdk/openai'
 import { nanoid } from '../lib/id'
@@ -73,7 +73,7 @@ export const chatRouter = createTRPCRouter({
     .input(
       z.object({
         chatId: z.string(),
-
+        messageId: z.string().optional(),
         prompt: z.string(),
         model: z.enum([...models.openai, ...models.anthropic]),
       }),
@@ -87,19 +87,17 @@ export const chatRouter = createTRPCRouter({
       if (!chat) throw new Error('Chat not found')
       if (chat.userId !== auth.userId) throw new Error('Unauthorized')
 
-      const userMessageResponseRow = await db
+      await db
         .insert(chatMessageTable)
-        .values({ id: nanoid(), chatId: chat.id, content: input.prompt, role: 'user' })
+        .values({ id: input.messageId ?? nanoid(), chatId: chat.id, content: input.prompt, role: 'user' })
         .returning()
         .then((rows) => rows[0])
 
       const chatStream = getChatStream(chat.id)
 
-      chatStream.send({ type: 'message', message: userMessageResponseRow })
-
       console.log('Starting prompt generation for chatId:', input.chatId, 'with prompt:', input.prompt, 'and model:', input.model)
 
-      const stream = await streamText({
+      const stream = streamText({
         model: getLanguageModel(input.model),
         messages: [
           ...chat.messages.map((m) => ({
@@ -110,6 +108,7 @@ export const chatRouter = createTRPCRouter({
         ],
         maxTokens: 16384,
         topP: 1,
+        experimental_transform: smoothStream(),
       })
 
       for await (const token of stream.textStream) {

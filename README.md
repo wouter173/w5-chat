@@ -9,6 +9,9 @@ This Turborepo starter is maintained by the Turborepo core team.
 - [ ] markdown formatting and syntax highlighting
 - [ ] clerk release mode
 - [ ] user permission limiting
+- [ ] chat forking
+- [ ] smooth animating text
+- [ ]
 
 ## Using this example
 

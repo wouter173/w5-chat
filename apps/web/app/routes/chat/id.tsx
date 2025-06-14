@@ -7,6 +7,8 @@ import type { Message, Model } from '@w5-chat/api'
 import { Prompt } from '~/components/prompt'
 import { Header } from '~/components/header'
 import { useLocation, useNavigate } from 'react-router'
+import { formatDistance } from 'date-fns'
+import { nanoid } from '~/lib/id'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
@@ -17,8 +19,13 @@ const UserMessage = ({ message }: { message: Message }) => (
 const AssistantMessage = ({ message }: { message: Message }) => (
   <li>
     <p>{message.content}</p>
-    <p className="text-gray-800">{message.model && <span className="text-xs text-zinc-400">{message.model}</span>}</p>
-    <p className="text-sm text-zinc-500">{message.createdAt.toLocaleString()}</p>
+    {message.model ? (
+      <span className="text-xs text-zinc-400">
+        {message.model} <span className="text-zinc-500">| {formatDistance(message.createdAt, new Date())}</span>
+      </span>
+    ) : (
+      <span className="text-transparent text-xs">{formatDistance(message.createdAt, new Date())}</span>
+    )}
   </li>
 )
 
@@ -29,7 +36,7 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
   const [response, setResponse] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  const location = useLocation()
+  const { state, pathname } = useLocation()
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [isAtBottom, setIsAtBottom] = useState(true)
@@ -37,17 +44,22 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
   const generateNameMutation = useMutation(trpc.chat.generateName.mutationOptions())
 
+  const [initialLoading, setInitialLoading] = useState(false)
+
   const usedPrompt = useRef<boolean>(false)
   useEffect(() => {
     if (usedPrompt.current) return
-    const prompt = location.state?.prompt as string | undefined
-    const model = location.state?.model as Model | undefined
+    const prompt = state?.prompt as string | undefined
+    const model = state?.model as Model | undefined
     if (prompt) {
       navigate('/' + id, { replace: true })
       usedPrompt.current = true
       generateNameMutation.mutate({ chatId: id, prompt })
+      setInitialLoading(true)
+      const messageId = nanoid()
+      setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
       promptMutation.mutate(
-        { chatId: id, prompt, model: model ?? 'o4-mini' },
+        { chatId: id, prompt, model: model ?? 'o4-mini', messageId },
         {
           onSuccess: async () => {
             await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
@@ -69,6 +81,7 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
             setResponse(null)
             setHistory((prev) => [...prev, payload.message])
           } else if (payload.type === 'token') {
+            setInitialLoading(false)
             console.log('Received token:', payload.content)
             setResponse((prev) => (prev ?? '') + payload.content)
             scrollToBottom()
@@ -90,12 +103,22 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
     }
   }
 
+  const [lastPath, setLastPath] = useState<string | null>(null)
+  const initialScrollBottomRef = useRef<boolean>(false)
   useLayoutEffect(() => {
     const el = containerRef.current
-    if (el) {
+    if (el && history.length > 0 && lastPath !== pathname) {
+      if (initialScrollBottomRef.current) return
+      initialScrollBottomRef.current = true
+      setLastPath(pathname)
+
       el.scrollTop = el.scrollHeight
     }
-  }, [history])
+  }, [history, pathname])
+
+  useEffect(() => {
+    initialScrollBottomRef.current = false
+  }, [pathname])
 
   return (
     <>
@@ -113,7 +136,10 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
               }
               return <AssistantMessage key={msg.id} message={msg} />
             })}
-            {response ? <AssistantMessage message={{ id: '', role: '', content: response, createdAt: new Date(), model: null }} /> : null}
+            {initialLoading ? <li className="text-zinc-400 text-sm">Generating response...</li> : null}
+            {response ? (
+              <AssistantMessage message={{ id: 'response', role: '', content: response, createdAt: new Date(), model: null }} />
+            ) : null}
           </ul>
         </div>
       </main>
@@ -122,7 +148,10 @@ export default function ChatId({ params: { id } }: Route.ComponentProps) {
         <div className="w-11/12 mx-auto bg-panel">
           <Prompt
             onSubmit={async (prompt, model) => {
-              await promptMutation.mutateAsync({ chatId: id, prompt, model })
+              const messageId = nanoid()
+              setInitialLoading(true)
+              setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
+              await promptMutation.mutateAsync({ chatId: id, prompt, model, messageId })
             }}
           />
           <div className="h-10"></div>
