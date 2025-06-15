@@ -2,7 +2,7 @@ import z from 'zod'
 import { chatMessageTable, chatTable } from '../db/schema'
 import { authProcedure, createTRPCRouter } from '../init'
 import { db } from '../lib/db'
-import { generateObject, smoothStream, streamText } from 'ai'
+import { generateObject, generateText, smoothStream, streamText } from 'ai'
 import { getLanguageModel, models } from '../lib/models'
 import { openai } from '@ai-sdk/openai'
 import { nanoid } from '../lib/id'
@@ -97,7 +97,14 @@ export const chatRouter = createTRPCRouter({
 
       console.log('Starting prompt generation for chatId:', input.chatId, 'with prompt:', input.prompt, 'and model:', input.model)
 
-      const stream = streamText({
+      console.log(
+        ...chat.messages.map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        })),
+      )
+
+      const stream = await streamText({
         model: getLanguageModel(input.model),
         messages: [
           ...chat.messages.map((m) => ({
@@ -106,9 +113,6 @@ export const chatRouter = createTRPCRouter({
           })),
           { role: 'user', content: input.prompt },
         ],
-        maxTokens: 16384,
-        topP: 1,
-        experimental_transform: smoothStream(),
       })
 
       for await (const token of stream.textStream) {
@@ -119,7 +123,7 @@ export const chatRouter = createTRPCRouter({
 
       const responseRow = await db
         .insert(chatMessageTable)
-        .values({ id: nanoid(), chatId: chat.id, content: text, model: input.model, role: 'system' })
+        .values({ id: nanoid(), chatId: chat.id, content: text, model: input.model, role: 'assistant' })
         .returning()
         .then((rows) => rows[0])
 

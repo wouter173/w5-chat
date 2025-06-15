@@ -41,9 +41,10 @@ export function Nav() {
         <div className="pointer-events-none absolute top-0 left-0 right-px h-6 bg-gradient-to-b from-background via-background/80 z-30"></div>
         <div className="pointer-events-none absolute bottom-0 left-0 right-px h-6 bg-gradient-to-t from-background via-background/80 z-30"></div>
         <ul className="h-full overflow-y-scroll overflow-x-hidden px-2.5 no-scrollbar py-[13px] ">
-          <AnimatePresence initial={false}>
+          <AnimatePresence>
             {listQuery.data?.map((chat) => (
               <motion.li
+                initial={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
