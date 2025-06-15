@@ -14,15 +14,14 @@ import { MemoizedMarkdown } from '~/components/memoized-markdown'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
-    <p>{message.content}</p>
+    <p className="whitespace-pre-wrap">{message.content}</p>
   </li>
 )
 
 const AssistantMessage = ({ message }: { message: Message }) => {
-  console.log(message.content)
   return (
     <li>
-      <div className="prose prose-invert">
+      <div className="prose prose-invert !max-w-none">
         <MemoizedMarkdown content={message.content} id={message.id}></MemoizedMarkdown>
       </div>
       {message.model ? (

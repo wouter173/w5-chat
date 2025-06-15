@@ -1,14 +1,17 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
-import '@fontsource-variable/geist'
-import openSansWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
-
 import type { Route } from './+types/root'
-import './app.css'
 import { rootAuthLoader } from '@clerk/react-router/ssr.server'
-import { ClerkProvider, SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/react-router'
+import { ClerkProvider } from '@clerk/react-router'
 import { dark } from '@clerk/themes'
 import { TRPCClientProvider } from './components/trpc'
+
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
+import geistSansWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url'
+import geistMonoWoff2 from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url'
+
+import './app.css'
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args)
@@ -17,13 +20,8 @@ export async function loader(args: Route.LoaderArgs) {
 export const meta: Route.MetaFunction = () => [{ title: 'W5 Chat' }]
 
 export const links: Route.LinksFunction = () => [
-  {
-    rel: 'preload',
-    as: 'font',
-    type: 'font/woff2',
-    href: openSansWoff2,
-    crossOrigin: 'anonymous',
-  },
+  { rel: 'preload', as: 'font', type: 'font/woff2', href: geistSansWoff2, crossOrigin: 'anonymous' },
+  { rel: 'preload', as: 'font', type: 'font/woff2', href: geistMonoWoff2, crossOrigin: 'anonymous' },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
