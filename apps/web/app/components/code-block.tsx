@@ -2,8 +2,10 @@ import { AnimatePresence, motion } from 'motion/react'
 import { useRef, useState, type ComponentProps } from 'react'
 import { childrenToString } from '~/lib/children-to-string'
 
-export function CodeBlock({ className = '', children }: ComponentProps<'code'>) {
-  const match = /language-(\w+)/.exec(className)
+export function CodeBlock({ children, ...props }: ComponentProps<'code'>) {
+  const { node } = props as { node: { children: [{ properties: { className: [string, string] } }] } }
+
+  const match = /language-(\w+)/.exec(node.children[0].properties.className[1])
   const language = match?.[1] || 'plaintext'
 
   const code = childrenToString(children).trim()
@@ -17,7 +19,6 @@ export function CodeBlock({ className = '', children }: ComponentProps<'code'>) 
         clearTimeout(timeoutIdRef.current)
       }
 
-      console.log('Copying code:', code)
       await navigator.clipboard.writeText(code)
       setCopied(true)
 

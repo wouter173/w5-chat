@@ -55,7 +55,7 @@ export function Nav() {
                   params.id === chat.id && 'sticky top-0 bottom-0 z-30 bg-panel text-zinc-50 border-zinc-800 ',
                 )}
               >
-                <SuperLink to={`/${chat.id}`} className="flex py-1.5 w-full text-sm px-2.5">
+                <SuperLink to={`/${chat.id}`} className="truncate py-1.5 text-sm px-2.5 w-full" title={chat.name}>
                   {chat.name}
                 </SuperLink>
                 <button

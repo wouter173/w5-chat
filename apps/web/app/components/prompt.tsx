@@ -17,7 +17,7 @@ export function Prompt({ onSubmit, disabled }: { disabled?: boolean; onSubmit: (
 
   const isDisabled = disabled || value.trim() === ''
 
-  const [model, setModel] = useState<Model>('o4-mini')
+  const [model, setModel] = useState<Model>('GPT-4.1 nano')
 
   return (
     <div className="relative w-full mx-auto max-w-3xl">

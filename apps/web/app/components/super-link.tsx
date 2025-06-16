@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 export function SuperLink(props: ComponentProps<typeof Link>) {
   return (
-    <Link onMouseDown={(e) => (e.target as HTMLAnchorElement).click()} {...props}>
+    <Link {...props} onMouseDown={(e) => e.currentTarget.click()}>
       {props.children}
     </Link>
   )

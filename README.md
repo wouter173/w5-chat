@@ -1,17 +1,29 @@
-# Turborepo starter
+# W5 Chat
 
-This Turborepo starter is maintained by the Turborepo core team.
+This is a submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/)
 
 ## TODO
 
+- [x] model selection with multiple models from multiple providers
+- [x] auth
+- [x] chat ui
+- [x] chat history
+- [ ] chat resumability
+  - [x] multiple clients can stream the same chat at the same time
+  - [x] automatically rejoin the stream when reconnecting or switching chat
+  - [ ] show response history when rejoining stream
+- [x] chat deletion
 - [ ] live sidebar with subscription
 - [ ] chat header
-- [ ] markdown formatting and syntax highlighting
+- [ ] render performance / loading state
+- [x] markdown formatting and syntax highlighting
 - [ ] clerk release mode
+
+nice to have:
+
 - [ ] user permission limiting
 - [ ] chat forking
 - [ ] smooth animating text
-- [ ]
 
 ## Using this example
 
