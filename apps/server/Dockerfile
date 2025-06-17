@@ -17,9 +17,8 @@ COPY --from=builder /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 
 COPY --from=builder /app/out/full/ .
-RUN
 
-RUN echo "Files at /app:" && find /app -type f && pnpm turbo run build
+RUN  pnpm turbo run build
 
 # runner
 FROM base AS runner
