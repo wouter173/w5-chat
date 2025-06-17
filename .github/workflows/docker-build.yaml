@@ -22,7 +22,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/w5-chat-server:latest .
+          docker build -t ghcr.io/${{ github.repository_owner }}/w5-chat-server:latest -f apps/server/Dockerfile .
           docker tag ghcr.io/${{ github.repository_owner }}/w5-chat-server:latest ghcr.io/${{ github.repository_owner }}/w5-chat-server:${{ github.sha }}
 
       - name: Push Docker image
