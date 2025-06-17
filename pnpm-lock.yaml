@@ -48,6 +48,9 @@ importers:
       dotenv-cli:
         specifier: ^8.0.0
         version: 8.0.0
+      tsup:
+        specifier: ^8.5.0
+        version: 8.5.0(jiti@2.4.2)(postcss@8.5.4)(tsx@4.19.4)(typescript@5.8.3)
       tsx:
         specifier: ^4.19.4
         version: 4.19.4
@@ -239,16 +242,6 @@ importers:
       tsx:
         specifier: ^4.19.4
         version: 4.19.4
-
-  packages/bus:
-    dependencies:
-      zod:
-        specifier: ^3.25.56
-        version: 3.25.56
-    devDependencies:
-      tsup:
-        specifier: ^8.5.0
-        version: 8.5.0(jiti@2.4.2)(postcss@8.5.4)(tsx@4.19.4)(typescript@5.8.3)
 
   packages/config-eslint:
     devDependencies:

@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "dotenv -e ../../.env -- tsx --watch --watch-preserve-output src/index.ts",
-    "start": "dotenv -e ../../.env -- tsx  src/index.ts",
+    "start": "dotenv -e ../../.env -- node dist/index.cjs",
+    "build": "tsup src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -24,6 +25,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "dotenv-cli": "^8.0.0",
+    "tsup": "^8.5.0",
     "tsx": "^4.19.4"
   }
 }

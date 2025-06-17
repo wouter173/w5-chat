@@ -22,5 +22,12 @@
 
     /* If your code doesn't run in the DOM: */
     "lib": ["es2022"]
-  }
+  },
+   "files": [
+        "./src/globals.d.ts",
+        "./src/index.ts"
+    ],
+    "exclude": [
+        "dist"
+    ]
 }
