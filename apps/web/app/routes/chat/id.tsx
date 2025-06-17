@@ -1,18 +1,18 @@
 import type { Route } from './+types/id'
-import { startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import { useTRPC } from '~/lib/trpc'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSubscription } from '@trpc/tanstack-react-query'
 import type { Message, Model } from '@w5-chat/api'
 import { Prompt } from '~/components/prompt'
-import { Header } from '~/components/header'
-import { useLocation, useNavigate, useNavigation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { formatDistance } from 'date-fns'
 import { nanoid } from '~/lib/id'
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
 import { MemoizedMarkdown } from '~/components/memoized-markdown'
 import 'highlight.js/styles/github-dark-dimmed.css'
 import { AnimatePresence, motion } from 'motion/react'
+import { useUser } from '@clerk/react-router'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
@@ -38,6 +38,15 @@ const AssistantMessage = ({ message }: { message: Message }) => {
 }
 
 export default function ChatId({ params: { id } }: Route.ComponentProps) {
+  const { isLoaded, isSignedIn } = useUser()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      navigate('/', { viewTransition: true })
+    }
+  }, [isLoaded, isSignedIn, navigate])
+
   return (
     <StickToBottom resize="instant" initial="smooth" className="overflow-scroll h-screen">
       <StickToBottom.Content>
@@ -52,16 +61,14 @@ function ChatMessages({ id }: { id: string }) {
   const queryClient = useQueryClient()
   const [history, setHistory] = useState<Message[]>([])
   const [response, setResponse] = useState<string | null>(null)
-  const { isAtBottom } = useStickToBottomContext()
   const navigate = useNavigate()
-  const navigation = useNavigation()
 
   const { state } = useLocation()
 
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
   const generateNameMutation = useMutation(trpc.chat.generateName.mutationOptions())
 
-  const [initialLoading, setInitialLoading] = useState(false)
+  const [generating, setGenerating] = useState(false)
 
   const usedPrompt = useRef<boolean>(false)
   useEffect(() => {
@@ -72,7 +79,7 @@ function ChatMessages({ id }: { id: string }) {
       navigate('/' + id, { replace: true })
       usedPrompt.current = true
       generateNameMutation.mutate({ chatId: id, prompt })
-      setInitialLoading(true)
+      setGenerating(true)
       const messageId = nanoid()
       setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
       promptMutation.mutate(
@@ -91,11 +98,15 @@ function ChatMessages({ id }: { id: string }) {
             startTransition(() => {
               setHistory(payload.messages)
             })
+          } else if (payload.type === 'resume') {
+            console.log('Resuming chat', payload.content)
+            setGenerating(true)
+            setResponse((prev) => (prev ?? '') + payload.content.join(''))
           } else if (payload.type === 'message') {
             setResponse(null)
+            setGenerating(false)
             setHistory((prev) => [...prev, payload.message])
           } else if (payload.type === 'token') {
-            setInitialLoading(false)
             setResponse((prev) => (prev ?? '') + payload.content)
           }
         },
@@ -105,8 +116,7 @@ function ChatMessages({ id }: { id: string }) {
 
   return (
     <>
-      <div className="w-full relative text-primary pb-64 px-4">
-        <Header />
+      <div className="w-full relative text-primary pb-64 px-4 pt-12">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div className="p-4 rounded max-w-3xl mx-auto">
@@ -117,7 +127,7 @@ function ChatMessages({ id }: { id: string }) {
                   }
                   return <AssistantMessage key={msg.id} message={msg} />
                 })}
-                {initialLoading ? <li className="text-zinc-400 text-sm">Generating response...</li> : null}
+                {!response && generating ? <li className="text-zinc-400 text-sm">Generating response...</li> : null}
                 {response ? (
                   <AssistantMessage message={{ id: 'response', role: '', content: response, createdAt: new Date(), model: null }} />
                 ) : null}
@@ -127,9 +137,10 @@ function ChatMessages({ id }: { id: string }) {
         </AnimatePresence>
       </div>
       <BottomPrompt
+        disabled={generating}
         onSubmit={async (prompt, model) => {
           const messageId = nanoid()
-          setInitialLoading(true)
+          setGenerating(true)
           setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
           await promptMutation.mutateAsync({ chatId: id, prompt, model, messageId })
         }}
@@ -138,13 +149,14 @@ function ChatMessages({ id }: { id: string }) {
   )
 }
 
-function BottomPrompt({ onSubmit: submitHandler }: { onSubmit: (prompt: string, model: Model) => void }) {
+function BottomPrompt({ onSubmit: submitHandler, disabled }: { onSubmit: (prompt: string, model: Model) => void; disabled?: boolean }) {
   const { scrollToBottom } = useStickToBottomContext()
 
   return (
     <div className="absolute bottom-0 w-full">
       <div className="w-11/12 mx-auto bg-panel">
         <Prompt
+          disabled={disabled}
           onSubmit={async (prompt, model) => {
             submitHandler(prompt, model)
             scrollToBottom('smooth')

@@ -5,8 +5,8 @@ import { childrenToString } from '~/lib/children-to-string'
 export function CodeBlock({ children, ...props }: ComponentProps<'code'>) {
   const { node } = props as { node: { children: [{ properties: { className: [string, string] } }] } }
 
-  const match = /language-(\w+)/.exec(node.children[0].properties.className[1])
-  const language = match?.[1] || 'plaintext'
+  const match = /language-(\w+)/.exec(node.children[0].properties.className?.[1])
+  const language = match?.[1] || ''
 
   const code = childrenToString(children).trim()
 
@@ -64,8 +64,10 @@ export function CodeBlock({ children, ...props }: ComponentProps<'code'>) {
         </button>
       </div>
 
-      <pre className="!px-4 py-3 !m-0 !rounded-none">
-        <code>{children}</code>
+      <pre className="!px-4 py-3 !m-0 !rounded-none overflow-x-scroll whitespace-pre">
+        <span className="overflow-auto w-full">
+          <code>{children}</code>
+        </span>
       </pre>
     </div>
   )

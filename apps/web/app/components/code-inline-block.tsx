@@ -1,8 +1,10 @@
 import { type ComponentProps } from 'react'
 import { cn } from '~/lib/cn'
 
-export function CodeInlineBlock({ className = '', children }: ComponentProps<'code'>) {
-  if (typeof children !== 'string') {
+export function CodeInlineBlock({ className = '', children, ...props }: ComponentProps<'code'>) {
+  const { node } = props as { node?: { properties?: { className?: [string, string] } } }
+
+  if (typeof node?.properties?.className?.[1] === 'string') {
     return children
   }
 

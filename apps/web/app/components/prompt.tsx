@@ -27,6 +27,7 @@ export function Prompt({ onSubmit, disabled }: { disabled?: boolean; onSubmit: (
         className="w-full bg-zinc-800 shadow-[0_-1px_rgba(255,255,255,0.15),0_4px_8px_rgba(0,0,0,0.05),0_1px_6px_-4px_#000] box-border rounded-3xl flex [view-transition-name:prompt]"
         onSubmit={(e) => {
           e.preventDefault()
+          if (isDisabled) return
           onSubmit(value, model)
           setValue('')
         }}
@@ -34,6 +35,7 @@ export function Prompt({ onSubmit, disabled }: { disabled?: boolean; onSubmit: (
         <div className="flex flex-col w-full">
           <label className="p-4 flex w-full">
             <textarea
+              autoFocus
               ref={textareaRef}
               onChange={(e) => setValue(e.target.value)}
               value={value}

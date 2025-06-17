@@ -1,13 +1,14 @@
+import { openai } from '@ai-sdk/openai'
+import { generateObject, streamText } from 'ai'
+import { eq } from 'drizzle-orm'
 import z from 'zod'
 import { chatMessageTable, chatTable } from '../db/schema'
 import { authProcedure, createTRPCRouter } from '../init'
-import { db } from '../lib/db'
-import { generateObject, generateText, smoothStream, streamText } from 'ai'
-import { getLanguageModel, models } from '../lib/models'
-import { openai } from '@ai-sdk/openai'
-import { nanoid } from '../lib/id'
 import { ChatStream, ChatStreamPayload, getChatStream, safeRemoveChatStream } from '../lib/chat-stream'
-import { eq } from 'drizzle-orm'
+import { db } from '../lib/db'
+import { nanoid } from '../lib/id'
+import { getLanguageModel, models } from '../lib/models'
+import { createMessageCache, getMessageCache, safeRemoveMessageCache } from '../lib/message-cache'
 
 export const chatRouter = createTRPCRouter({
   models: authProcedure.query(() => models),
@@ -94,15 +95,9 @@ export const chatRouter = createTRPCRouter({
         .then((rows) => rows[0])
 
       const chatStream = getChatStream(chat.id)
+      const messageCache = createMessageCache(chat.id)
 
       console.log('Starting prompt generation for chatId:', input.chatId, 'with prompt:', input.prompt, 'and model:', input.model)
-
-      console.log(
-        ...chat.messages.map((m) => ({
-          role: m.role as 'user' | 'assistant',
-          content: m.content,
-        })),
-      )
 
       const stream = await streamText({
         model: getLanguageModel(input.model),
@@ -117,6 +112,8 @@ export const chatRouter = createTRPCRouter({
 
       for await (const token of stream.textStream) {
         chatStream.send({ type: 'token', content: token })
+        messageCache.addToken(token)
+        // await new Promise((resolve) => setTimeout(resolve, 500)) // Throttle to avoid overwhelming the stream
       }
 
       const text = await stream.text
@@ -129,6 +126,7 @@ export const chatRouter = createTRPCRouter({
 
       chatStream.send({ type: 'message', message: responseRow })
       safeRemoveChatStream(chat.id)
+      safeRemoveMessageCache(chat.id)
       return text
     }),
 
@@ -153,8 +151,12 @@ export const chatRouter = createTRPCRouter({
 
     yield payload
 
-    let chatStream: ChatStream | undefined = undefined
+    const messageCache = getMessageCache(chat.id)
+    if (messageCache) {
+      yield { type: 'resume', content: messageCache.getTokens() } as const
+    }
 
+    let chatStream: ChatStream | undefined = undefined
     try {
       chatStream = getChatStream(chat.id)
 
