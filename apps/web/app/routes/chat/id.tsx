@@ -76,16 +76,16 @@ function ChatMessages({ id }: { id: string }) {
     const prompt = state?.prompt as string | undefined
     const model = state?.model as Model | undefined
     if (prompt) {
-      navigate('/' + id, { replace: true })
+      navigate(`/${id}`, { replace: true })
       usedPrompt.current = true
-      generateNameMutation.mutate({ chatId: id, prompt })
-      setGenerating(true)
-      const messageId = nanoid()
-      setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
-      promptMutation.mutate(
-        { chatId: id, prompt, model: model ?? 'GPT-4.1 nano', messageId },
+      generateNameMutation.mutate(
+        { chatId: id, prompt },
         { onSuccess: async () => await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() }) },
       )
+      const messageId = nanoid()
+      setGenerating(true)
+      setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
+      promptMutation.mutate({ chatId: id, prompt, model: model ?? 'GPT-4.1 nano', messageId })
     }
   }, [])
 
@@ -96,7 +96,9 @@ function ChatMessages({ id }: { id: string }) {
         onData: (payload) => {
           if (payload.type === 'history') {
             startTransition(() => {
-              setHistory(payload.messages)
+              setHistory(() => payload.messages)
+              setResponse(null)
+              setGenerating(false)
             })
           } else if (payload.type === 'resume') {
             console.log('Resuming chat', payload.content)

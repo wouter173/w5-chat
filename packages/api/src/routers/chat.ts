@@ -56,8 +56,18 @@ export const chatRouter = createTRPCRouter({
     const {
       object: { name },
     } = await generateObject({
-      model: openai('gpt-4-turbo'),
-      prompt: `generate a chat name based on the following prompt: ${input.prompt}, if the prompt is empty, return "New Chat"`,
+      model: openai('gpt-4.1-nano'),
+      prompt: `
+      Given the input prompt: ${input.prompt}, generate a clear and descriptive name that summarizes the main idea or functionality. The name should be concise, relevant, and easy to understand.
+
+      Example: "write me a react component" outputs "counter react component"
+      Example: "a poem about flowers" gives "flower poem"
+      Example: "how do i build a house" gives "house building guide"
+
+      Feel free to customize the instructions further based on your specific needs!
+      Make it concise, relevant, and easy to understand.
+      It can never be empty.
+      It can never exceed 50 characters.`,
       schema: z.object({
         name: z.string().min(1, 'Chat name must not be empty').max(50, 'Chat name must not exceed 50 characters'),
       }),
@@ -113,7 +123,6 @@ export const chatRouter = createTRPCRouter({
       for await (const token of stream.textStream) {
         chatStream.send({ type: 'token', content: token })
         messageCache.addToken(token)
-        // await new Promise((resolve) => setTimeout(resolve, 500)) // Throttle to avoid overwhelming the stream
       }
 
       const text = await stream.text

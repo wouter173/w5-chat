@@ -8,16 +8,17 @@ This is a submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/)
 - [x] auth
 - [x] chat ui
 - [x] chat history
-- [ ] chat resumability
+- [x] chat resumability
   - [x] multiple clients can stream the same chat at the same time
   - [x] automatically rejoin the stream when reconnecting or switching chat
-  - [ ] show response history when rejoining stream
+  - [x] show response history when rejoining stream
 - [x] chat deletion
 - [ ] live sidebar with subscription
 - [ ] chat header
-- [ ] render performance / loading state
+- [x] render performance / loading state
 - [x] markdown formatting and syntax highlighting
 - [ ] clerk release mode
+- [ ] model chat memory (locally is fine)
 
 nice to have:
 
