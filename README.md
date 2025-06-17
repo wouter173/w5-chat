@@ -2,6 +2,10 @@
 
 This is a submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/)
 
+## Fix
+
+- [ ] og prompt in new chats disappear
+
 ## TODO
 
 - [x] model selection with multiple models from multiple providers

@@ -9,7 +9,6 @@ export default function Index() {
   const trpc = useTRPC()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { redirectToSignIn } = useClerk()
 
   const createMutation = useMutation(trpc.chat.create.mutationOptions())
 
@@ -18,21 +17,14 @@ export default function Index() {
       <div className="grid place-items-center h-full">
         <div className="w-full flex flex-col items-center max-w-3xl p-4 gap-8">
           <h1 className="text-3xl text-center">Welcome to W5 Chat</h1>
-          <SignedOut>
-            <button className="w-48 h-10 bg-zinc-700" onClick={() => redirectToSignIn()}>
-              Sign in
-            </button>
-          </SignedOut>
-          <SignedIn>
-            <Prompt
-              onSubmit={async (prompt, model) => {
-                const chat = await createMutation.mutateAsync()
-                await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
+          <Prompt
+            onSubmit={async (prompt, model) => {
+              const chat = await createMutation.mutateAsync()
+              await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() })
 
-                navigate(`/${chat.id}`, { state: { prompt, model }, viewTransition: true })
-              }}
-            />
-          </SignedIn>
+              navigate(`/${chat.id}`, { state: { prompt, model }, viewTransition: true })
+            }}
+          />
         </div>
       </div>
     </div>

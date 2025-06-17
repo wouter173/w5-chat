@@ -38,15 +38,6 @@ const AssistantMessage = ({ message }: { message: Message }) => {
 }
 
 export default function ChatId({ params: { id } }: Route.ComponentProps) {
-  const { isLoaded, isSignedIn } = useUser()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      navigate('/', { viewTransition: true })
-    }
-  }, [isLoaded, isSignedIn, navigate])
-
   return (
     <StickToBottom resize="instant" initial="smooth" className="overflow-scroll h-screen">
       <StickToBottom.Content>
@@ -66,7 +57,14 @@ function ChatMessages({ id }: { id: string }) {
   const { state } = useLocation()
 
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
-  const generateNameMutation = useMutation(trpc.chat.generateName.mutationOptions())
+  const generateNameMutation = useMutation(
+    trpc.chat.generateName.mutationOptions({
+      onSuccess: () => {
+        console.log('Chat name generated successfully', trpc.chat.list.queryKey())
+        queryClient.invalidateQueries({ queryKey: trpc.chat.list.queryKey() })
+      },
+    }),
+  )
 
   const [generating, setGenerating] = useState(false)
 
@@ -78,10 +76,7 @@ function ChatMessages({ id }: { id: string }) {
     if (prompt) {
       navigate(`/${id}`, { replace: true })
       usedPrompt.current = true
-      generateNameMutation.mutate(
-        { chatId: id, prompt },
-        { onSuccess: async () => await queryClient.refetchQueries({ queryKey: trpc.chat.list.queryKey() }) },
-      )
+      generateNameMutation.mutate({ chatId: id, prompt })
       const messageId = nanoid()
       setGenerating(true)
       setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
@@ -119,7 +114,7 @@ function ChatMessages({ id }: { id: string }) {
   return (
     <>
       <div className="w-full relative text-primary pb-64 px-4 pt-12">
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence mode="wait" initial={true}>
           <motion.div key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div className="p-4 rounded max-w-3xl mx-auto">
               <ul className="flex flex-col gap-4">

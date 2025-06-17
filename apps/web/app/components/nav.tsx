@@ -7,11 +7,10 @@ import { cn } from '~/lib/cn'
 import { Divide, MenuIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from '@clerk/react-router'
+import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/react-router'
 
-export function Nav() {
+export function Nav({ user }: { user: { fullName?: string; email: string; avatarUrl: string } }) {
   const trpc = useTRPC()
-  const { user } = useUser()
   const clerk = useClerk()
 
   const listQuery = useQuery(trpc.chat.list.queryOptions())
@@ -19,10 +18,6 @@ export function Nav() {
   const [newButtonActive, setNewButtonActive] = useState(false)
 
   const params = useParams()
-
-  useEffect(() => {
-    console.log('List query data:', listQuery.data)
-  }, [listQuery.data])
 
   return (
     <nav className="pt-4 w-72 shrink-0 max-h-screen sticky top-0 flex flex-col z-20">
@@ -68,7 +63,7 @@ export function Nav() {
                     params.id === chat.id && 'sticky top-0 bottom-0 z-30 bg-panel text-zinc-50 border-zinc-800 ',
                   )}
                 >
-                  <SuperLink to={`/${chat.id}`} className="truncate py-1.5 text-sm px-2.5 w-full" title={chat.name}>
+                  <SuperLink to={`/${chat.id}`} className="truncate py-1.5 text-sm px-2.5 w-full" title={chat.name} viewTransition>
                     {chat.name}
                   </SuperLink>
                   <button
@@ -92,34 +87,32 @@ export function Nav() {
         </div>
         <div className="p-2 pb-4 border-t border-zinc-800 h-">
           <div className="h-13">
-            <SignedIn>
-              <button
-                className="flex items-center gap-2 text-left w-full p-2 hover:bg-zinc-900 rounded-xl"
-                onClick={() =>
-                  clerk.openUserProfile({
-                    customPages: [
-                      {
-                        label: 'Signout',
-                        mountIcon: () => {},
-                        mount: () => clerk.signOut(),
-                        unmount: () => {},
-                        unmountIcon: () => {},
-                        url: '/signout',
-                      },
-                    ],
-                  })
-                }
-              >
-                <div className="w-7 h-7">
-                  <img src={user?.imageUrl} className="rounded-full" />
-                </div>
+            <button
+              className="flex items-center gap-2 text-left w-full p-2 hover:bg-zinc-900 rounded-xl"
+              onClick={() =>
+                clerk.openUserProfile({
+                  customPages: [
+                    {
+                      label: 'Signout',
+                      mountIcon: () => {},
+                      mount: () => clerk.signOut(),
+                      unmount: () => {},
+                      unmountIcon: () => {},
+                      url: '/signout',
+                    },
+                  ],
+                })
+              }
+            >
+              <div className="w-7 h-7">
+                <img src={user.avatarUrl} className="rounded-full" />
+              </div>
 
-                <div className="flex flex-col text-sm text-zinc-100">
-                  <span>{user?.fullName ?? user?.emailAddresses[0].emailAddress}</span>
-                  <span className="text-xs text-zinc-500">{user?.emailAddresses[0].emailAddress}</span>
-                </div>
-              </button>
-            </SignedIn>
+              <div className="flex flex-col text-sm text-zinc-100">
+                <span>{user.fullName ?? user.email}</span>
+                <span className="text-xs text-zinc-500">{user.email}</span>
+              </div>
+            </button>
           </div>
         </div>
       </SignedIn>

@@ -49,8 +49,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
         baseTheme: dark,
       }}
       loaderData={loaderData}
-      signUpFallbackRedirectUrl="/"
-      signInFallbackRedirectUrl="/"
     >
       <TRPCClientProvider>
         <Outlet />
