@@ -47,12 +47,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <ClerkProvider
-      appearance={{
-        baseTheme: dark,
-      }}
-      loaderData={loaderData}
-    >
+    <ClerkProvider appearance={{ baseTheme: dark }} loaderData={loaderData}>
       <TRPCClientProvider>
         <Outlet />
       </TRPCClientProvider>
