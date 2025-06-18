@@ -18,7 +18,7 @@ app.use(morgan('combined'))
 const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {
   const auth = getAuth(req)
 
-  console.log('auth', { auth })
+  console.log('auth', { auth, req })
 
   if (!auth.userId) return { auth: null }
   return { auth: { userId: auth.userId } }
