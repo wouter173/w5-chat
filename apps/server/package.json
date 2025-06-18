@@ -15,11 +15,13 @@
   "dependencies": {
     "@clerk/express": "^1.6.0",
     "@trpc/server": "11.3.1",
+    "@types/morgan": "^1.9.10",
     "@w5-chat/api": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "zod": "^3.25.56",
-    "tsx": "^4.19.4"
+    "morgan": "^1.10.0",
+    "tsx": "^4.19.4",
+    "zod": "^3.25.56"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

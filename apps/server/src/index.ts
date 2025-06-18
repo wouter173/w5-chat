@@ -3,6 +3,7 @@ import { appRouter } from '@w5-chat/api'
 import express from 'express'
 import { clerkMiddleware, getAuth } from '@clerk/express'
 import cors from 'cors'
+import morgan from 'morgan'
 
 const PORT = 3000
 const app = express()
@@ -12,12 +13,15 @@ console.log(allowedOrigins)
 
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(clerkMiddleware())
+app.use(morgan('combined'))
 
 const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {
-  const { userId } = getAuth(req)
+  const auth = getAuth(req)
 
-  if (!userId) return { auth: null }
-  return { auth: { userId } }
+  console.log('auth', { auth })
+
+  if (!auth.userId) return { auth: null }
+  return { auth: { userId: auth.userId } }
 }
 
 app.use(
