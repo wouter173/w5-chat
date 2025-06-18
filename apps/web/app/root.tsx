@@ -35,6 +35,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script defer src="https://assets.onedollarstats.com/stonks.js" data-debug="chat.wouterdb.com"></script>
       </head>
       <body className="bg-background text-primary font-sans overscroll-none">
         {children}
