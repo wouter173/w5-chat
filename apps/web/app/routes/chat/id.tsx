@@ -38,7 +38,7 @@ const AssistantMessage = ({ message }: { message: Message }) => {
 
 export default function ChatId({ params: { id } }: Route.ComponentProps) {
   return (
-    <StickToBottom resize="instant" initial="smooth" className="overflow-scroll h-screen">
+    <StickToBottom resize="instant" initial="instant" className="overflow-scroll h-screen" key={id}>
       <StickToBottom.Content>
         <ChatMessages id={id} />
       </StickToBottom.Content>
@@ -126,23 +126,25 @@ function ChatMessages({ id }: { id: string }) {
   return (
     <>
       <div className="w-full relative text-primary pb-64 px-4 pt-12">
-        <AnimatePresence mode="popLayout" initial={true}>
-          <motion.div key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-            <div className="p-4 rounded max-w-3xl mx-auto">
-              <ul className="flex flex-col gap-4">
-                {history.map((msg) => {
-                  if (msg.role === 'user') {
-                    return <UserMessage key={msg.id} message={msg} />
-                  }
-                  return <AssistantMessage key={msg.id} message={msg} />
-                })}
-                {!response && generating ? <li className="text-zinc-400 text-sm">Generating response...</li> : null}
-                {response ? (
-                  <AssistantMessage message={{ id: 'response', role: '', content: response, createdAt: new Date(), model: null }} />
-                ) : null}
-              </ul>
-            </div>
-          </motion.div>
+        <AnimatePresence mode="wait" initial={true}>
+          {history.length > 0 ? (
+            <motion.div key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.1 }}>
+              <div className="p-4 rounded max-w-3xl mx-auto">
+                <ul className="flex flex-col gap-4">
+                  {history.map((msg) => {
+                    if (msg.role === 'user') {
+                      return <UserMessage key={msg.id} message={msg} />
+                    }
+                    return <AssistantMessage key={msg.id} message={msg} />
+                  })}
+                  {!response && generating ? <li className="text-zinc-400 text-sm">Generating response...</li> : null}
+                  {response ? (
+                    <AssistantMessage message={{ id: 'response', role: '', content: response, createdAt: new Date(), model: null }} />
+                  ) : null}
+                </ul>
+              </div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
       <BottomPrompt

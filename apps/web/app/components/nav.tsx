@@ -85,9 +85,9 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
           </ul>
         </div>
         <div className="p-2 pb-4 border-t border-zinc-800">
-          <div className="h-13">
+          <div className="group h-13 flex gap-2">
             <button
-              className="group flex items-center gap-2 text-left w-full px-3 py-2 hover:bg-zinc-900 rounded-xl cursor-pointer"
+              className="flex items-center gap-2 text-left w-full px-3 py-2 hover:bg-zinc-900 rounded-xl cursor-pointer"
               onClick={() => clerk.openUserProfile()}
             >
               <div className="w-7 h-7">
@@ -98,19 +98,19 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
                 <span>{user.fullName ?? user.email}</span>
                 <span className="text-xs text-zinc-500">{user.email}</span>
               </div>
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation()
-                  await clerk.signOut()
-                  navigate('/sign-in', { replace: true })
-                }}
-                className={cn(
-                  'ml-auto opacity-0 group-hover:opacity-50 transition-all mr-1 cursor-pointer hover:opacity-100 p-1 block rounded-sm duration-75',
-                  'active:scale-95',
-                )}
-              >
-                <LogOutIcon size={16} />
-              </button>
+            </button>
+            <button
+              onClick={async (e) => {
+                e.stopPropagation()
+                await clerk.signOut()
+                navigate('/sign-in', { replace: true })
+              }}
+              className={cn(
+                'ml-auto opacity-0 group-hover:opacity-50 transition-all mr-1 cursor-pointer hover:opacity-100 p-1 block rounded-sm duration-75',
+                'active:scale-95',
+              )}
+            >
+              <LogOutIcon size={16} />
             </button>
           </div>
         </div>
