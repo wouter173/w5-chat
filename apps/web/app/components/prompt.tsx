@@ -52,7 +52,7 @@ export function Prompt({ onSubmit, disabled }: { disabled?: boolean; onSubmit: (
           </label>
           <label className="px-3.5 pb-3">
             <ModelSelect value={model} onChange={(value) => setModel(value as Model)}>
-              <button className="w-fit min-w-20 border rounded-full pl-3 pr-2 py-1 text-sm border-zinc-700 shadow-lg flex items-center text-zinc-300 hover:text-zinc-50 transition-all focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 justify-between">
+              <button className="cursor-pointer w-fit min-w-20 border rounded-full pl-3 pr-2 py-1 text-sm border-zinc-700 shadow-lg flex items-center text-zinc-300 hover:text-zinc-50 transition-all focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 justify-between">
                 {model ? model : 'Select model'}
                 <ChevronsUpDownIcon size={14} className="ml-2 inline-block" />
               </button>

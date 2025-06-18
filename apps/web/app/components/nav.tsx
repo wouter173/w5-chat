@@ -2,9 +2,9 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { useTRPC } from '~/lib/trpc'
 import { SuperLink } from './super-link'
-import { Link, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 import { cn } from '~/lib/cn'
-import { Divide, MenuIcon, Trash2Icon } from 'lucide-react'
+import { Divide, LogOutIcon, MenuIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/react-router'
@@ -18,6 +18,7 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
   const [newButtonActive, setNewButtonActive] = useState(false)
 
   const params = useParams()
+  const navigate = useNavigate()
 
   return (
     <nav className="pt-4 w-72 shrink-0 max-h-screen sticky top-0 flex flex-col z-20">
@@ -82,27 +83,12 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
               ))}
             </AnimatePresence>
           </ul>
-          {listQuery.isLoading && <li>Loading chats...</li>}
-          {listQuery.isError && <li>Error loading chats</li>}
         </div>
-        <div className="p-2 pb-4 border-t border-zinc-800 h-">
+        <div className="p-2 pb-4 border-t border-zinc-800">
           <div className="h-13">
             <button
-              className="flex items-center gap-2 text-left w-full p-2 hover:bg-zinc-900 rounded-xl"
-              onClick={() =>
-                clerk.openUserProfile({
-                  customPages: [
-                    {
-                      label: 'Signout',
-                      mountIcon: () => {},
-                      mount: () => clerk.signOut(),
-                      unmount: () => {},
-                      unmountIcon: () => {},
-                      url: '/signout',
-                    },
-                  ],
-                })
-              }
+              className="group flex items-center gap-2 text-left w-full px-3 py-2 hover:bg-zinc-900 rounded-xl cursor-pointer"
+              onClick={() => clerk.openUserProfile()}
             >
               <div className="w-7 h-7">
                 <img src={user.avatarUrl} className="rounded-full" />
@@ -112,6 +98,19 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
                 <span>{user.fullName ?? user.email}</span>
                 <span className="text-xs text-zinc-500">{user.email}</span>
               </div>
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation()
+                  await clerk.signOut()
+                  navigate('/sign-in', { replace: true })
+                }}
+                className={cn(
+                  'ml-auto opacity-0 group-hover:opacity-50 transition-all mr-1 cursor-pointer hover:opacity-100 p-1 block rounded-sm duration-75',
+                  'active:scale-95',
+                )}
+              >
+                <LogOutIcon size={16} />
+              </button>
             </button>
           </div>
         </div>

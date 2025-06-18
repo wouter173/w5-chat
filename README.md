@@ -4,7 +4,7 @@ This is a submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/)
 
 ## Fix
 
-- [ ] og prompt in new chats disappear
+- [x] og prompt in new chats disappear
 
 ## TODO
 
@@ -17,12 +17,12 @@ This is a submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/)
   - [x] automatically rejoin the stream when reconnecting or switching chat
   - [x] show response history when rejoining stream
 - [x] chat deletion
-- [ ] live sidebar with subscription
-- [ ] chat header
 - [x] render performance / loading state
 - [x] markdown formatting and syntax highlighting
-- [ ] clerk release mode
+- [x] clerk release mode
+- [x] sign-in ui
 - [ ] model chat memory (locally is fine)
+- [ ] live sidebar with subscription
 
 nice to have:
 

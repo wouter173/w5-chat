@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSubscription } from '@trpc/tanstack-react-query'
 import type { Message, Model } from '@w5-chat/api'
 import { Prompt } from '~/components/prompt'
-import { useLocation, useNavigate } from 'react-router'
+import { useLocation, useNavigate, useNavigation } from 'react-router'
 import { formatDistance } from 'date-fns'
 import { nanoid } from '~/lib/id'
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
@@ -27,10 +27,10 @@ const AssistantMessage = ({ message }: { message: Message }) => {
       </div>
       {message.model ? (
         <span className="text-xs text-zinc-400">
-          {message.model} <span className="text-zinc-500">| {formatDistance(message.createdAt, new Date())}</span>
+          {message.model} <span className="text-zinc-500">| {formatDistance(message.createdAt, new Date())} ago</span>
         </span>
       ) : (
-        <span className="text-transparent text-xs">{formatDistance(message.createdAt, new Date())}</span>
+        <span className="text-transparent text-xs">ago</span>
       )}
     </li>
   )
@@ -54,6 +54,14 @@ function ChatMessages({ id }: { id: string }) {
   const navigate = useNavigate()
 
   const { state } = useLocation()
+  const [lastId, setLastId] = useState<string | null>(null)
+
+  if (id !== lastId) {
+    setLastId(id)
+    if (history.length > 0) {
+      setHistory([])
+    }
+  }
 
   const promptMutation = useMutation(trpc.chat.prompt.mutationOptions())
   const generateNameMutation = useMutation(

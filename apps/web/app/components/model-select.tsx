@@ -6,7 +6,7 @@ import { useTRPC } from '~/lib/trpc'
 
 export function ModelSelect({ value, onChange, children }: PropsWithChildren<{ value: string; onChange: (value: string) => void }>) {
   const trpc = useTRPC()
-  const { data, isLoading } = useQuery(trpc.chat.models.queryOptions())
+  const { data } = useQuery(trpc.chat.models.queryOptions())
 
   const usableData = data || ({} as Record<string, string[]>)
 
