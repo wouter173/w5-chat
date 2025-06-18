@@ -5,9 +5,9 @@
   --sans-font-family: 'Geist Variable';
   --mono-font-family: 'Geist Mono Variable';
 
-  --color-primary: var(--color-zinc-950);
+  /* --color-primary: var(--color-zinc-950);
   --color-background: var(--color-zinc-50);
-  --color-panel: var(--color-zinc-100);
+  --color-panel: var(--color-zinc-100); */
 
   @media (prefers-color-scheme: dark) {
     --color-primary: var(--color-zinc-50);
