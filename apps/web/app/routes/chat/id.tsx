@@ -83,11 +83,11 @@ function ChatMessages({ id }: { id: string }) {
     if (prompt) {
       usedPrompt.current = true
       generateNameMutation.mutate({ chatId: id, prompt })
+      navigate(`/${id}`, { replace: true })
       const messageId = nanoid()
       setGenerating(true)
       setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
       promptMutation.mutate({ chatId: id, prompt, model: model ?? 'GPT-4.1 nano', messageId })
-      navigate(`/${id}`, { replace: true })
     }
   }, [])
 
