@@ -73,13 +73,13 @@ function ChatMessages({ id }: { id: string }) {
     const prompt = state?.prompt as string | undefined
     const model = state?.model as Model | undefined
     if (prompt) {
-      navigate(`/${id}`, { replace: true })
       usedPrompt.current = true
       generateNameMutation.mutate({ chatId: id, prompt })
       const messageId = nanoid()
       setGenerating(true)
       setHistory((prev) => [...prev, { content: prompt, role: 'user', id: messageId, createdAt: new Date(), model: null }])
       promptMutation.mutate({ chatId: id, prompt, model: model ?? 'GPT-4.1 nano', messageId })
+      navigate(`/${id}`, { replace: true })
     }
   }, [])
 
@@ -89,6 +89,11 @@ function ChatMessages({ id }: { id: string }) {
       {
         onData: (payload) => {
           if (payload.type === 'history') {
+            //return if chat is clean
+            console.log(payload.messages, history)
+            if (payload.messages.length === 0 && history.length < 2) {
+              return
+            }
             startTransition(() => {
               setHistory(() => payload.messages)
               setResponse(null)
