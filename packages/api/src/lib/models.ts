@@ -1,6 +1,6 @@
 import { openai } from '@ai-sdk/openai'
-import { LanguageModelV1 } from 'ai'
-import { Model } from './types'
+import type { LanguageModelV1 } from 'ai'
+import type { Model } from './types'
 import { anthropic } from '@ai-sdk/anthropic'
 
 export const anthropicModels = ['Claude 4 Sonnet'] as const

@@ -7,7 +7,9 @@ import cors from 'cors'
 const PORT = 3000
 const app = express()
 
-app.use(cors({ origin: process.env.CORS_DOMAINS!.split(','), credentials: true }))
+const allowedOrigins = process.env.CORS_DOMAINS!.split(',')
+
+app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(clerkMiddleware())
 
 const createContext = async ({ req }: trpcExpress.CreateExpressContextOptions) => {

@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import z from 'zod'
 import { chatMessageTable, chatTable } from '../db/schema'
 import { authProcedure, createTRPCRouter } from '../init'
-import { ChatStream, ChatStreamPayload, getChatStream, safeRemoveChatStream } from '../lib/chat-stream'
+import { ChatStream, type ChatStreamPayload, getChatStream, safeRemoveChatStream } from '../lib/chat-stream'
 import { db } from '../lib/db'
 import { nanoid } from '../lib/id'
 import { getLanguageModel, models } from '../lib/models'
@@ -131,7 +131,7 @@ export const chatRouter = createTRPCRouter({
         .insert(chatMessageTable)
         .values({ id: nanoid(), chatId: chat.id, content: text, model: input.model, role: 'assistant' })
         .returning()
-        .then((rows) => rows[0])
+        .then((rows) => rows[0]!)
 
       chatStream.send({ type: 'message', message: responseRow })
       safeRemoveChatStream(chat.id)

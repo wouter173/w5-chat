@@ -2,11 +2,13 @@ services:
   server:
     image: w5-chat-server:latest
     ports:
-      - 3000:80
+      - 3000:3000
     environment:
-      - DB_URL=file:/app/db/local.db
+      - DB_URL=/app/db/local.db
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - CLERK_PUBLISHABLE_KEY=${CLERK_PUBLISHABLE_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CORS_DOMAINS=${CORS_DOMAINS}
     volumes:
       - ./db:/app/db

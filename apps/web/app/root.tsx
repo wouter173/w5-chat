@@ -22,6 +22,9 @@ export const meta: Route.MetaFunction = () => [{ title: 'W5 Chat' }]
 export const links: Route.LinksFunction = () => [
   { rel: 'preload', as: 'font', type: 'font/woff2', href: geistSansWoff2, crossOrigin: 'anonymous' },
   { rel: 'preload', as: 'font', type: 'font/woff2', href: geistMonoWoff2, crossOrigin: 'anonymous' },
+  { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+  { rel: 'icon', type: 'image/png', sizes: '96x96', href: '/favicon-96x96.png' },
+  { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

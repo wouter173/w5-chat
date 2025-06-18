@@ -12,7 +12,6 @@ import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
 import { MemoizedMarkdown } from '~/components/memoized-markdown'
 import 'highlight.js/styles/github-dark-dimmed.css'
 import { AnimatePresence, motion } from 'motion/react'
-import { useUser } from '@clerk/react-router'
 
 const UserMessage = ({ message }: { message: Message }) => (
   <li className="bg-zinc-800/50 px-4 py-3 rounded-2xl border border-white/5 max-w-3/4 ml-auto">
@@ -23,7 +22,7 @@ const UserMessage = ({ message }: { message: Message }) => (
 const AssistantMessage = ({ message }: { message: Message }) => {
   return (
     <li>
-      <div className="prose prose-invert !max-w-none">
+      <div className="prose prose-invert prose-zinc !max-w-none">
         <MemoizedMarkdown content={message.content} id={message.id}></MemoizedMarkdown>
       </div>
       {message.model ? (
@@ -114,7 +113,7 @@ function ChatMessages({ id }: { id: string }) {
   return (
     <>
       <div className="w-full relative text-primary pb-64 px-4 pt-12">
-        <AnimatePresence mode="wait" initial={true}>
+        <AnimatePresence mode="popLayout" initial={true}>
           <motion.div key={id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
             <div className="p-4 rounded max-w-3xl mx-auto">
               <ul className="flex flex-col gap-4">

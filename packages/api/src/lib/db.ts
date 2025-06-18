@@ -1,10 +1,11 @@
-import { drizzle } from 'drizzle-orm/libsql'
+import { drizzle } from 'drizzle-orm/better-sqlite3'
 import * as schema from '../db/schema'
+
+console.log('Connecting to database at:', process.env.DB_URL)
 
 const db = drizzle({
   connection: {
-    url: process.env.DB_URL,
-    authToken: process.env.DB_TOKEN,
+    source: process.env.DB_URL,
   },
   casing: 'snake_case',
   schema,
