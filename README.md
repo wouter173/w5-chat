@@ -12,6 +12,7 @@ This is my submission to the [t3 chat cloneathon](https://cloneathon.t3.chat/), 
 - React Router
 - TRPC
 - Streaming TRPC
+- AI SDK
 - Express
 - Clerk
 
