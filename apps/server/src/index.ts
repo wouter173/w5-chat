@@ -8,6 +8,7 @@ const PORT = 3000
 const app = express()
 
 const allowedOrigins = process.env.CORS_DOMAINS!.split(',')
+console.log(allowedOrigins)
 
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(clerkMiddleware())
