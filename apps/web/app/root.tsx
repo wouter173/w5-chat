@@ -13,10 +13,6 @@ import geistMonoWoff2 from '@fontsource-variable/geist-mono/files/geist-mono-lat
 
 import './app.css'
 
-export async function loader(args: Route.LoaderArgs) {
-  return rootAuthLoader(args)
-}
-
 export const meta: Route.MetaFunction = () => [{ title: 'W5 Chat' }]
 
 export const links: Route.LinksFunction = () => [
@@ -46,9 +42,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function App() {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }} loaderData={loaderData}>
+    <ClerkProvider appearance={{ baseTheme: dark }} publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <TRPCClientProvider>
         <Outlet />
       </TRPCClientProvider>

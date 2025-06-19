@@ -7,15 +7,17 @@ import { cn } from '~/lib/cn'
 import { Divide, LogOutIcon, MenuIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { SignedIn, SignedOut, SignInButton, useClerk } from '@clerk/react-router'
+import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from '@clerk/react-router'
 
-export function Nav({ user }: { user: { fullName?: string; email: string; avatarUrl: string } }) {
+export function Nav() {
   const trpc = useTRPC()
   const clerk = useClerk()
 
   const listQuery = useQuery(trpc.chat.list.queryOptions())
   const deleteMutation = useMutation(trpc.chat.delete.mutationOptions())
   const [newButtonActive, setNewButtonActive] = useState(false)
+
+  const { user } = useUser()
 
   const params = useParams()
   const navigate = useNavigate()
@@ -91,12 +93,12 @@ export function Nav({ user }: { user: { fullName?: string; email: string; avatar
               onClick={() => clerk.openUserProfile()}
             >
               <div className="w-7 h-7">
-                <img src={user.avatarUrl} className="rounded-full" />
+                <img src={user?.imageUrl} className="rounded-full" />
               </div>
 
               <div className="flex flex-col text-sm text-zinc-100">
-                <span>{user.fullName ?? user.email}</span>
-                <span className="text-xs text-zinc-500">{user.email}</span>
+                <span>{user?.fullName ?? user?.primaryEmailAddress?.emailAddress}</span>
+                <span className="text-xs text-zinc-500">{user?.primaryEmailAddress?.emailAddress}</span>
               </div>
             </button>
             <button
