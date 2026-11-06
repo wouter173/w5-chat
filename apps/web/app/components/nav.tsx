@@ -7,7 +7,7 @@ import { cn } from '~/lib/cn'
 import { Divide, LogOutIcon, MenuIcon, Trash2Icon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { SignedIn, SignedOut, SignInButton, useClerk, useUser } from '@clerk/react-router'
+import { useClerk, useUser } from '@clerk/react-router'
 
 export function Nav() {
   const trpc = useTRPC()

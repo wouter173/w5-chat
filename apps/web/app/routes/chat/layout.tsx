@@ -1,4 +1,4 @@
-import { SignedOut, useUser } from '@clerk/react-router'
+import { Show, useUser } from '@clerk/react-router'
 import { useEffect } from 'react'
 import { Navigate, Outlet, useNavigate } from 'react-router'
 import { Nav } from '~/components/nav'
@@ -6,9 +6,9 @@ import { Nav } from '~/components/nav'
 export default function Layout() {
   return (
     <div className="flex min-h-screen w-full overflow-hidden">
-      <SignedOut>
+      <Show when="signed-out">
         <Navigate to="/sign-in" replace />
-      </SignedOut>
+      </Show>
       <Nav />
       <div className="relative w-full overflow-scroll">
         <div className="left-0 right-0 top-0 h-[15px] absolute w-full bg-background z-20"></div>

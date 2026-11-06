@@ -1,3 +1,15 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+allowBuilds:
+  '@clerk/shared': false
+  better-sqlite3: true
+  esbuild: true
+
+overrides:
+  "@ai-sdk/provider@3": "3.0.14"
+  "@ai-sdk/provider-utils@>=4.0.0 <4.0.33": "4.0.40"
+  "esbuild@0.18": "0.25.12"
+  "minimatch@>=7 <11.0.1": "11.0.4"
+  "postcss-selector-parser@6": "6.1.5"

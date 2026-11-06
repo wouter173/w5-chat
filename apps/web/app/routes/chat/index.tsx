@@ -1,4 +1,3 @@
-import { SignedIn, SignedOut, useAuth, useClerk } from '@clerk/react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { Prompt } from '~/components/prompt'

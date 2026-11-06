@@ -14,19 +14,17 @@
   "license": "ISC",
   "dependencies": {
     "@clerk/express": "^1.6.0",
-    "@trpc/server": "11.3.1",
+    "@trpc/server": "11.24.0",
     "@types/morgan": "^1.9.10",
     "@w5-chat/api": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "morgan": "^1.10.0",
-    "tsx": "^4.19.4",
-    "zod": "^3.25.56"
+    "tsx": "^4.19.4"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "dotenv-cli": "^8.0.0",
-    "tsup": "^8.5.0"
+    "dotenv-cli": "^8.0.0"
   }
 }

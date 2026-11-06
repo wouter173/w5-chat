@@ -56,7 +56,7 @@ export const chatRouter = createTRPCRouter({
     const {
       object: { name },
     } = await generateObject({
-      model: openai('gpt-4.1-nano'),
+      model: openai.chat('gpt-4.1-nano'),
       prompt: `
       Given the input prompt: ${input.prompt}, generate a clear and descriptive name that summarizes the main idea or functionality. The name should be concise, relevant, and easy to understand.
 

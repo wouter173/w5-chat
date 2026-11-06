@@ -1,13 +1,13 @@
-import { SignedIn, useClerk } from '@clerk/react-router'
+import { Show, useClerk } from '@clerk/react-router'
 import { Navigate } from 'react-router'
 
 export default function SignIn() {
   const { openSignIn } = useClerk()
   return (
     <div className="flex h-screen items-center justify-center">
-      <SignedIn>
+      <Show when="signed-in">
         <Navigate to="/" />
-      </SignedIn>
+      </Show>
       <div className="flex gap-2 flex-col items-center">
         <h1 className="text-2xl font-bold mb-4">Welcome to W5 Chat</h1>
         <div className="w-full max-w-md p-6 pb-5 bg-zinc-900 rounded-4xl shadow-md flex flex-col gap-4 border border-zinc-800 text-zinc-300">

@@ -1,7 +1,6 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
 import type { Route } from './+types/root'
-import { rootAuthLoader } from '@clerk/react-router/ssr.server'
 import { ClerkProvider } from '@clerk/react-router'
 import { dark } from '@clerk/themes'
 import { TRPCClientProvider } from './components/trpc'
@@ -44,7 +43,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }} publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider appearance={{ theme: dark }} publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
       <TRPCClientProvider>
         <Outlet />
       </TRPCClientProvider>
