@@ -11,7 +11,7 @@ RUN apt-get update \
 
 WORKDIR /app
 
-RUN npm install -g turbo@2 pnpm@9
+RUN npm install -g turbo@2 pnpm@12.18.0
 
 # builder
 FROM base AS builder
