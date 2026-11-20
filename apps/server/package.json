@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "dotenv -e ../../.env -- tsx --watch --watch-preserve-output src/index.ts",
-    "start": "tsx src/index.ts",
+    "dev": "node --env-file ../../.env --watch src/index.ts",
+    "start": "node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
@@ -19,8 +19,7 @@
     "@w5-chat/api": "workspace:*",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "morgan": "^1.10.0",
-    "tsx": "^4.19.4"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

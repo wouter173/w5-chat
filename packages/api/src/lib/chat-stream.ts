@@ -1,5 +1,5 @@
 import { EventEmitter, on } from 'events'
-import type { Message } from './types'
+import type { Message } from './types.ts'
 
 export type ChatStreamPayload =
   | { type: 'token'; content: string }

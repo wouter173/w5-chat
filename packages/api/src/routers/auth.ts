@@ -1,5 +1,5 @@
-import { authProcedure, createTRPCRouter } from '../init'
-import { clerkClient } from '../lib/clerk'
+import { authProcedure, createTRPCRouter } from '../init.ts'
+import { clerkClient } from '../lib/clerk.ts'
 
 export const authRouter = createTRPCRouter({
   me: authProcedure.query(async ({ ctx: { auth } }) => {

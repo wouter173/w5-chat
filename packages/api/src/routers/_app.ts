@@ -1,7 +1,7 @@
-import { authRouter } from './auth'
+import { authRouter } from './auth.ts'
 
-import { createTRPCRouter } from '../init'
-import { chatRouter } from './chat'
+import { createTRPCRouter } from '../init.ts'
+import { chatRouter } from './chat.ts'
 
 export const appRouter = createTRPCRouter({
   auth: authRouter,

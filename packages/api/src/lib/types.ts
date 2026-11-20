@@ -1,4 +1,4 @@
-import { models } from './models'
+import { models } from './models.ts'
 
 export type Message = {
   id: string
